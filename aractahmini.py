@@ -5,16 +5,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-# ============================================================
-# 1) VERİYİ OKU
-# ============================================================
+
 df = pd.read_csv("turkey_car_market.csv")
 
 print("İlk veri boyutu:", df.shape)
 
-# ============================================================
-# 2) TEMİZLEME
-# ============================================================
+
 df["Model Yıl"] = df["Model Yıl"].astype(int)
 
 df["Fiyat"] = (
@@ -44,9 +40,7 @@ df = df[(df["Km"] >= 0) & (df["Km"] < 1000000)]
 
 print("Temizleme sonrası veri boyutu:", df.shape)
 
-# ============================================================
-# 3) KOLON İSİMLERİNİ DÜZENLE
-# ============================================================
+
 df = df.rename(columns={
     "İlan Tarihi": "Ilan_Tarihi",
     "Marka": "Marka",
@@ -65,21 +59,11 @@ df = df.rename(columns={
     "Fiyat": "Fiyat"
 })
 
-# ============================================================
-# 4) YENİ ÖZELLİKLER (FEATURE ENGINEERING)
-# ============================================================
+
 df["Arac_Yasi"] = 2020 - df["Model_Yil"]
 df["Km_Yil"] = df["Km"] / df["Arac_Yasi"].replace(0, 1)
 
-# ============================================================
-# 5) NADİR KATEGORİLERİ GRUPLA
-# ------------------------------------------------------------
-# Bu adım dosya boyutunu küçültmenin en etkili yolu.
-# Marka ve Arac_Tip kolonlarında çok az sayıda ilanı olan
-# değerleri "Diger" altında topluyoruz. Böylece one-hot
-# encoding sonrası sütun sayısı ciddi şekilde azalıyor ve
-# ağaçlar daha küçük, model dosyası daha hafif oluyor.
-# ============================================================
+
 MIN_SAYIM = 20
 
 marka_sayilari = df["Marka"].value_counts()
@@ -93,9 +77,7 @@ df["Arac_Tip"] = df["Arac_Tip"].where(~df["Arac_Tip"].isin(nadir_tipler), "Diger
 print("Gruplama sonrası benzersiz Marka sayısı:", df["Marka"].nunique())
 print("Gruplama sonrası benzersiz Arac_Tip sayısı:", df["Arac_Tip"].nunique())
 
-# ============================================================
-# 6) ÖZELLİK / HEDEF AYRIMI
-# ============================================================
+
 features = [
     "Marka",
     "Arac_Tip_Grubu",
@@ -118,9 +100,7 @@ X = pd.get_dummies(X)
 
 print("One-hot encoding sonrası sütun sayısı:", X.shape[1])
 
-# ============================================================
-# 7) EĞİTİM / TEST AYRIMI
-# ============================================================
+
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -128,14 +108,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-# ============================================================
-# 8) MODEL
-# ------------------------------------------------------------
-# n_estimators ve max_depth düşürüldü, max_features="sqrt"
-# eklendi ve min_samples_leaf artırıldı. Bu ayarlar hem
-# dosya boyutunu ciddi şekilde küçültüyor hem de aşırı
-# öğrenme (overfitting) riskini azaltıyor.
-# ============================================================
+
 model = RandomForestRegressor(
     n_estimators=50,
     max_depth=10,
@@ -149,9 +122,7 @@ print("Model eğitiliyor...")
 model.fit(X_train, y_train)
 print("Model eğitildi.")
 
-# ============================================================
-# 9) PERFORMANS DEĞERLENDİRME
-# ============================================================
+
 y_pred = model.predict(X_test)
 
 mae = mean_absolute_error(y_test, y_pred)
@@ -173,12 +144,7 @@ importance = pd.Series(
 print("\nEn önemli 15 değişken:\n")
 print(importance.head(15))
 
-# ============================================================
-# 10) MODELİ KAYDET (maksimum sıkıştırma ile)
-# ------------------------------------------------------------
-# compress=("xz", 9) joblib'in en yüksek sıkıştırma seviyesi.
-# compress=3'e göre dosya boyutunda ciddi bir azalma sağlar.
-# ============================================================
+
 joblib.dump(
     model,
     "arac_fiyat_modeli.pkl",

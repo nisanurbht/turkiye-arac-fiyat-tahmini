@@ -3,18 +3,14 @@ import pandas as pd
 import joblib
 from datetime import datetime
 
-# ------------------------------
-# Sayfa Ayarları
-# ------------------------------
+
 st.set_page_config(
-    page_title="🚗 Türkiye Araç Fiyat Tahmin Sistemi",
+    page_title="🚗 2020 yılı için Türkiye Araç Fiyat Tahmin Sistemi",
     page_icon="🚗",
     layout="wide"
 )
 
-# ------------------------------
-# Model ve Veriyi Yükle
-# ------------------------------
+
 @st.cache_resource
 def load_data():
     model = joblib.load("arac_fiyat_modeli.pkl")
@@ -24,22 +20,18 @@ def load_data():
 
 model, feature_columns, df = load_data()
 
-# ------------------------------
-# Başlık
-# ------------------------------
-st.title("🚗 Türkiye Araç Fiyat Tahmin Sistemi")
+
+st.title("🚗 2020 yılı için Türkiye Araç Fiyat Tahmin Sistemi")
 
 st.markdown("""
 Bu uygulama **Random Forest** makine öğrenmesi algoritması kullanılarak geliştirilmiştir.
 
-Aracınızın bilgilerini girerek **tahmini piyasa satış fiyatını** öğrenebilirsiniz.
+Aracınızın bilgilerini girerek 2020 yılı **tahmini piyasa satış fiyatını** öğrenebilirsiniz.
 """)
 
 st.divider()
 
-# ------------------------------
-# Sidebar
-# ------------------------------
+
 st.sidebar.header("🚘 Araç Bilgileri")
 
 marka = st.sidebar.selectbox(
@@ -107,9 +99,7 @@ durum = st.sidebar.selectbox(
 
 st.divider()
 
-# ------------------------------
-# Tahmin
-# ------------------------------
+
 if st.button("🚀 Fiyat Tahmini Yap", use_container_width=True):
 
     arac_yasi = datetime.now().year - model_yil
@@ -223,7 +213,7 @@ st.divider()
 with st.expander("ℹ️ Proje Hakkında"):
 
     st.write("""
-Bu uygulama Türkiye ikinci el araç piyasasına ait geniş bir veri kümesi kullanılarak geliştirilmiştir.
+Bu uygulama 2020 yılı için Türkiye ikinci el araç piyasasına ait geniş bir veri kümesi kullanılarak geliştirilmiştir.
 
 Makine öğrenmesi modeli olarak **Random Forest Regressor** kullanılmıştır.
 
